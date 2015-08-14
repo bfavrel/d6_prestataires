@@ -1,0 +1,8 @@
+; $Id$
+core          = "6.x"
+name          = "Prestataires dispos"
+description   = "Provides functionalities for customers to add availabilities informations to contents"
+package       = Saison d'Or
+
+dependencies[] = prestataires
+dependencies[] = views

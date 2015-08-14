@@ -1,0 +1,344 @@
+<?php
+
+/**
+ * Implementation of hook_init().
+ */
+function prestataires_editeurs_init() {
+    drupal_add_js(drupal_get_path('module', 'prestataires_editeurs') . '/scripts/admin.js', 'module');
+    drupal_add_css(drupal_get_path('module', 'prestataires_editeurs') . '/css/admin.css', 'all');
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @return An array of menu items.
+ */
+function prestataires_editeurs_menu() {
+    $items = array();
+
+    // Autocomplete callback : liste des contenus à assigner
+    $items['prestataires/autocomplete_content_list'] = array(
+        'page callback' => 'prestataires_editeurs_autocomplete_content_list',
+        'page arguments' => array(2, 3),
+        'access arguments' => array('administer users'),
+        'type' => MENU_CALLBACK,
+    );
+
+    // AHAH callback : ajoute des éléments à la liste des contenus assignés
+    $items['prestataires/add_content_list_elements'] = array(
+        'page callback' => 'prestataires_editeurs_add_content_list_elements',
+        'access arguments' => array('administer users'),
+        'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}
+
+/**
+ * Implementation of hook_prestataires
+ */
+function prestataires_editeurs_prestataires($op) {
+
+    switch($op) {
+        
+        case 'settings':
+            return prestataires_editeurs_form_settings();
+            break;
+
+        case 'roles':
+            return 'prestataire éditeur';
+            break;
+        
+        case 'user_edit_form':
+            return prestataires_editeurs_user_edit_form(func_get_arg(1));
+            break;
+
+        case 'user_profil':
+            return prestataires_editeurs_user_profile(func_get_arg(1));
+            break;
+    }
+}
+
+/**
+ * Return module settings
+ */
+function prestataires_editeurs_form_settings() {
+    
+    $form = array();
+    
+    $content_types = node_get_types('names');
+
+    $form['prestataires_editeurs'] = array(
+        '#type' => 'fieldset',
+        '#title' => t("Prestataires Editeurs"),
+        '#weight' => -10,
+        '#collapsible' => true,
+        '#collapsed' => true,
+    );
+
+    $form['prestataires_editeurs']['prestataires_editeurs_content_types'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t("Prestataires can own this type(s) of content"),
+        '#options' => $content_types,
+        '#default_value' => variable_get('prestataires_editeurs_content_types', array()),
+    );
+
+    $form['prestataires_editeurs']['prestataires_editeurs_default_uid'] = array(
+        '#title' => t("Default UID for reseted contents"),
+        '#type' => 'textfield',
+        '#size' => 3,
+        '#default_value' => variable_get('prestataires_editeurs_default_uid', 1),
+    );
+    
+    return $form;
+}
+
+/**
+ * Alter and return user profil edit form
+ * 
+ * @param array $form original form
+ * @return string 
+ */
+function prestataires_editeurs_user_edit_form($form) {
+
+    // on altère que si c'est un admin qui affiche le formulaire et si l'utilisateur fait partie du groupe 'prestataire éditeur'
+    if(user_access('administer users') == false || !isset($form['_account']['#value']->roles[prestataires_get_rid('prestataire éditeur')])) {return;}
+
+    $uid = $form['#uid'];
+
+    $additions['owned_contents'] = array(
+        '#type' => 'fieldset',
+        '#title' => t("Prestataires : Content edition parameters"),
+        '#weight' => -9,
+        '#tree' => true,
+    );
+
+    $additions['owned_contents']['owned_contents_display'] = array(
+        '#type' => 'markup',
+        '#prefix' => "<div id='owned_contents_display'>",
+        '#suffix' => "</div>",
+    );
+
+    $user = user_load($uid);
+
+    $req = "SELECT nid, title FROM {node} WHERE uid=%d AND language='%s' ORDER BY title ASC";
+    $result = db_query($req, $uid, $user->language);
+
+    if($result->num_rows != null) {
+        while($row = db_fetch_array($result)) {
+            $additions['owned_contents']['owned_contents_display'][] = prestataires_editeurs_create_owned_content_div_element($row['title'], $row['nid']);
+        }
+    } else {
+        $additions['owned_contents']['owned_contents_display']['#value'] = t("No content assigned yet");
+    }
+
+    $additions['owned_contents']['owned_contents_input'] = array(
+        '#type' => 'textfield',
+        '#title' => t("Assign content"),
+        '#default_value' => '',
+        '#autocomplete_path' => 'prestataires/autocomplete_content_list/' . $uid,
+        '#ahah' => array(
+            'path' => 'prestataires/add_content_list_elements',
+            'wrapper' => 'owned_contents_display',
+            'effect' => 'fade',
+            'event' => 'change',
+            'method' => 'replace',
+        ),
+    );
+
+    $additions['#submit'] = 'prestataires_editeurs_form_user_profile_form_submit';
+    
+    return $additions;
+}
+
+/**
+ * Processing added and deleted contents
+ */
+function prestataires_editeurs_form_user_profile_form_submit($form, &$form_state) {
+
+    $uid = $form['#uid'];
+
+    prestataires_editeurs_reset_nodes_owner($uid);
+
+    $contents = $form_state['values']['owned_contents']['owned_contents_display'];
+
+    if(!empty($contents)) {
+        foreach($contents as $content) {
+            if($content['to_reset'] == 1){continue;}
+
+            $req = "UPDATE {node} SET uid=%d WHERE nid=%d";
+            db_query($req, $uid, $content['content']);
+        }
+    }
+}
+
+/**
+ * Reset node owner with module settings default owner
+ *
+ * @param int $old_owner_uid
+ */
+function prestataires_editeurs_reset_nodes_owner($old_owner_uid) {
+
+    $req = "UPDATE {node} SET uid=%d WHERE uid=%d";
+    db_query($req, variable_get('prestataires_editeurs_default_uid', 1), $old_owner_uid);
+}
+
+/**
+ * Return a div element with title and delete link.
+ */
+function prestataires_editeurs_create_owned_content_div_element($title, $nid) {
+    return array(
+        '#type' => 'markup',
+        '#prefix' => "<div class='owned_content_title' id='title_" . $nid . "'>",
+        '#value' => $title . " <a class='delete_content' href='#'>(" . t("delete") . ")</a>",
+        '#suffix' => "</div>",
+        'content' => prestataires_editeurs_create_owned_content_value_element($nid),
+        'to_reset' => prestataires_editeurs_create_owned_content_hidden_element(),
+    );
+}
+
+/**
+ * Return a value element which will store owned nid
+ */
+function prestataires_editeurs_create_owned_content_value_element($nid) {
+    return array(
+        '#type' => 'value',
+        '#value' => $nid,
+    );
+}
+
+/**
+ * Return an hidden element which will store nid to reset
+ */
+function prestataires_editeurs_create_owned_content_hidden_element() {
+    return array(
+        '#type' => 'hidden',
+    );
+}
+
+/**
+ * Autocomplete callback for the textfield
+ */
+function prestataires_editeurs_autocomplete_content_list($uid, $string) {
+
+    $user = user_load($uid);
+
+    $clause_in = array();
+    $content_types = variable_get('prestataires_editeurs_content_types', array());
+
+    foreach($content_types as $key => $value) {
+        if($value != '0') {
+            $clause_in[] = $key;
+        }
+    }
+
+    if(empty($clause_in)){return drupal_json(array());}
+
+    $req = "SELECT nid, title FROM {node} WHERE uid!=%d AND type IN (" . db_placeholders($clause_in, 'text') . ") AND title LIKE '%%%s%%' AND language='%s' ORDER BY title ASC";
+    $result = db_query($req, array_merge((array)$uid, $clause_in, (array)$string, (array)$user->language));
+
+    $titles = array();
+
+    while($row = db_fetch_array($result)) {
+        $titles[$row['nid']] = $row['title'];
+    }
+
+    return drupal_json($titles);
+}
+
+/**
+ * AHAH callback for the textfield
+ */
+function prestataires_editeurs_add_content_list_elements() {
+
+    $form_build_id = $_POST['form_build_id'];
+
+    // TODO : security : éviter l'utilisation des données POST. Regarder du côté des arguments.
+    $form_id = $_POST['form_id'];
+    $nid = $_POST['owned_contents']['owned_contents_input'];
+
+    // on initialise un form_state
+    $form_state = array('storage' => NULL, 'submitted' => FALSE);
+
+    // on extrait la structure de base du formulaire du cache (état non submited)
+    $form = form_get_cache($form_build_id, $form_state);
+
+    $req = "SELECT title FROM {node} WHERE nid=%d";
+    $title = db_result(db_query($req, $nid));
+
+    if(!empty($title)){
+        // on ajoute les deux nouveaux elements
+        $form['owned_contents']['owned_contents_display'][] = prestataires_editeurs_create_owned_content_div_element($title, $nid);
+    }
+
+    // on sauvegarde la strucutre du formulaire modifié dans le cache
+    form_set_cache($form_build_id, $form, $form_state);
+
+    // on construit le formulaire (données POST mappées)
+    $form = form_builder($form_id, $form, $form_state);
+
+    // on effectue le rendu HTML de la section modifiée
+    $output = "";
+
+    foreach (element_children($form['owned_contents']['owned_contents_display']) as $element) {
+
+        $output .= drupal_render($form['owned_contents']['owned_contents_display'][$element]);
+    }
+
+    return drupal_json($output);
+}
+
+/**
+ * Return user profile items
+ * @param stdclass $account 
+ */
+function prestataires_editeurs_user_profile($account) {
+    if(!isset($account->roles[prestataires_get_rid('prestataire éditeur')])) {return;}
+
+    $user = user_load($account->uid);
+
+    $req = "SELECT nid, title FROM {node} WHERE uid=%d AND language='%s'";
+    $result = db_query($req, $account->uid, $user->language);
+
+    $value = "";
+
+    while($row = db_fetch_array($result)) {
+        $value .= "<li>" . l($row['title'], 'node/' . $row['nid'] . '/edit') . "</li>";
+    }
+
+    if($value == "") {return;}
+
+    $value = "<ul>" . $value . "</ul>";
+
+    $item = array(
+        'prestataires_editeurs' => array(
+            '#type' => 'user_profile_item',
+            '#title' => t("Edit content"),
+            '#value' => $value,
+            '#weight' => 0,
+            '#attributes' => array(id => '', 'class' => 'prestataires_user_profile_item'),
+        ),
+    );
+
+    return $item;
+}
+
+/**
+ * Implementation of hook_user().
+ *
+ * @param $op What kind of actions is being performed. Possible values: after_update, categories, delete, form, insert, load, login, logout, register, submit, update, validate, view
+ * @param &$edit The array of form values submitted by the user.
+ * @param &$account The user object on which the operation is being performed.
+ * @param $category The active category of user information being edited.
+ */
+function prestataires_editeurs_user($op, &$edit, &$account, $category = NULL) {
+
+    if($op == 'delete') {
+        prestataires_editeurs_reset_nodes_owner($account->nid);
+
+        // Le hook_user implémenté par le module node peut intervenir avant le nôtre, et passe l'uid du node à 0 ('anonymous')
+        // on fait donc un second passage pour réinitialiser les éventuels contenus orphelins
+        $req = "UPDATE {node} SET uid=%d WHERE uid=0";
+        db_query($req, variable_get('prestataires_editeurs_default_uid', 1));
+    }
+}

@@ -1,0 +1,5 @@
+; $Id$
+core          = "6.x"
+name          = "Prestataires kiosque"
+description   = "Provides public screens displays functionalities to Prestataires module suite"
+package       = Saison d'Or

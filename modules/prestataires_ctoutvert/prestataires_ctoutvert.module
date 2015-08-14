@@ -1,0 +1,310 @@
+<?php
+
+/**
+ * Implementation of hook_prestataires
+ */
+function prestataires_ctoutvert_prestataires($op) {
+
+    switch($op) {
+        case 'settings':
+            return prestataires_ctoutvert_form_settings();
+            break;
+    }
+}
+
+function prestataires_ctoutvert_menu() {
+    $items = array();
+
+    $items['admin/reports/prestataires_ctoutvert'] = array(
+        'title' => 'Prestataires CToutvert XML',
+        'page callback' => 'prestataires_ctoutvert_xml_overview',
+        'type' => MENU_NORMAL_ITEM,
+        'access arguments' => array('administer prestataires'),
+    );
+
+    return $items;
+}
+
+function prestataires_ctoutvert_form_settings() {
+
+    $types = prestataires_dispos_get_dispos_types();
+    $types_options = array_combine($types, $types);
+
+    $file_path = variable_get('prestataires_ctoutvert_xml_path', '');
+
+    if(is_file($file_path)) {
+
+        $file_time = DateTime::createFromFormat('U', filemtime($file_path));
+        $file_time->setTimezone(new DateTimeZone("Europe/Paris"));
+
+        $file_description = t("File exists. Last update : @date at @time.", array('@date' => $file_time->format('d/m/Y'), '@time' => $file_time->format('H:i:s')));
+
+    } else {
+        $file_description = "";
+    }
+
+    $form = array(
+        'prestataires_ctoutvert' => array(
+            '#type' => 'fieldset',
+            '#title' => t("Prestataires Ctoutvert"),
+            '#weight' => -9,
+            '#collapsible' => true,
+            '#collapsed' => true,
+
+            'prestataires_ctoutvert_xml_path' => array(
+                '#type' => 'textfield',
+                '#title' => t("Absolute path to the XML file"),
+                '#description' => $file_description,
+                '#default_value' => $file_path,
+                '#required' => true,
+            ),
+
+            'prestataires_ctoutvert_field' => array(
+                '#type' => 'textfield',
+                '#title' => t("ID Ctoutvert CCK Field name"),
+                '#default_value' => variable_get('prestataires_ctoutvert_field', ''),
+                '#required' => true,
+            ),
+
+            'prestataires_ctoutvert_reset_type' => array(
+                '#type' => 'radios',
+                '#title' => t("Availability type to use outside XML periods"),
+                '#options' => $types_options,
+                '#default_value' => variable_get('prestataires_ctoutvert_reset_type', null),
+            ),
+
+            'prestataires_ctoutvert_default_type' => array(
+                '#type' => 'radios',
+                '#title' => t("Availability type to use inside XML periods"),
+                '#options' => $types_options,
+                '#default_value' => variable_get('prestataires_ctoutvert_default_type', null),
+            ),
+        ),
+    );
+
+    return $form;
+}
+
+function prestataires_ctoutvert_cron() {
+
+    module_load_include('inc', 'prestataires_dispos', 'prestataires_dispos.edit');
+
+    watchdog('ctoutvert', "XML import started.", array(), WATCHDOG_INFO);
+
+    $file_path = variable_get('prestataires_ctoutvert_xml_path', '');
+
+    if(!is_file($file_path)) {
+        watchdog('ctoutvert', "XML import aborted.<br />Invalid file", array(), WATCHDOG_ERROR);
+        return;
+    }
+
+    $last_update = variable_get('prestataires_ctoutvert_timestamp', 0);
+
+    if(filemtime($file_path) <= $last_update) {
+        $file_time = DateTime::createFromFormat('U', filemtime($file_path));
+        $file_time->setTimezone(new DateTimeZone("Europe/Paris"));
+
+        watchdog('ctoutvert', "XML import finished.<br />File was up to date : @date at @time.", array('@date' => $file_time->format('d/m/Y'), '@time' => $file_time->format('H:i:s')), WATCHDOG_INFO);
+        return;
+    }
+
+    $xml = simplexml_load_file($file_path, null, LIBXML_NOCDATA);
+
+    if(empty($xml)) {
+        watchdog('ctoutvert', "XML import aborted.<br />No xml data in file.", array(), WATCHDOG_WARNING);
+        variable_set('prestataires_ctoutvert_timestamp', time());
+        return;
+    }
+
+    $field_name = variable_get('prestataires_ctoutvert_field', '');
+
+    $field_infos = content_fields($field_name);
+    $field_database_infos = content_database_info($field_infos);
+    $field_table = $field_database_infos['table'];
+    $field_column = $field_database_infos['columns']['value']['column'];
+
+    $reset_type = variable_get('prestataires_ctoutvert_reset_type', null);
+
+    $today = new DateTime();
+    $one_year_later = clone $today;
+    $one_year_later->modify('+1 year');
+
+    $closed_period = array(
+        'start' => $today->format('y-m-d'),
+        'end' => $one_year_later->format('y-m-d'),
+        'type' => $reset_type,
+    );
+
+    //----- réinitialisation des nodes
+    $results = db_query(
+        "SELECT n.nid FROM {" . $field_table . "} AS f
+         LEFT JOIN node AS n ON n.nid=f.nid AND n.language='fr'
+         WHERE n.nid IS NOT NULL AND f." . $field_column . "!=''"
+    );
+
+    while($row = db_fetch_object($results)) {
+        db_query("DELETE FROM {prestataires_dispos_dispos} WHERE nid=%d", array($row->nid));
+        prestataires_dispos_save($row->nid, $closed_period['type'], $closed_period['start'], $closed_period['end']);
+    }
+
+    $nodes = prestataires_ctoutvert_parse_xml($xml, $field_table, $field_column);
+
+    $num_periods = 0;
+
+    //----- les dispos
+    foreach($nodes as $nid => $periods) {
+
+        foreach($periods as $period) {
+            prestataires_dispos_save($nid, $period['type'], $period['start'], $period['end']);
+            $num_periods++;
+        }
+    }
+
+    variable_set('prestataires_ctoutvert_timestamp', time());
+    watchdog(
+        'ctoutvert', "XML import finished.<br />@num_periods periods wrotten in @num_nodes nodes.",
+        array(
+            '@num_periods' => $num_periods,
+            '@num_nodes' => count($nodes),
+        ),
+        WATCHDOG_INFO
+    );
+}
+
+function prestataires_ctoutvert_parse_xml($xml, $field_table, $field_column) {
+
+    $default_type = variable_get('prestataires_ctoutvert_default_type', null);
+
+    $data = _ctoutvert_xml2array($xml->availabilityInformationList);
+    $nodes = array();
+
+    //----- les établissements
+    foreach($data['availabilityInformations'] as $infos) {
+
+        $nid = db_result(db_query(
+            "SELECT n.nid FROM {" . $field_table . "} AS f
+             LEFT JOIN node AS n ON n.nid=f.nid AND n.language='fr'
+             WHERE f." . $field_column . "=%d",
+            array($infos['establishmentInformation'][0]['establishmentId'])
+        ));
+
+        if(empty($nid)) {continue;}
+
+        $cache = array(); // start => end
+
+        //----- les produits de chaque établissement
+        foreach($infos['productInformationsList'][0]['productInformations'] as $sub_infos) {
+
+            if(array_key_exists($sub_infos['productAvailabilityDate'][0]['dateBegin'], $cache)
+                    && $cache[$sub_infos['productAvailabilityDate'][0]['dateBegin']] == $sub_infos['productAvailabilityDate'][0]['dateEnd']) {
+
+                continue;
+            }
+
+            $nodes[$nid][] = array(
+                'start' => str_replace('T00:00:00', '', $sub_infos['productAvailabilityDate'][0]['dateBegin']),
+                'end' => str_replace('T00:00:00', '', $sub_infos['productAvailabilityDate'][0]['dateEnd']),
+                'type' => $default_type,
+            );
+
+            $cache[$sub_infos['productAvailabilityDate'][0]['dateBegin']] = $sub_infos['productAvailabilityDate'][0]['dateEnd'];
+        }
+    }
+
+    return $nodes;
+}
+
+function prestataires_ctoutvert_xml_overview() {
+
+    $file_description = array();
+
+    $file_path = variable_get('prestataires_ctoutvert_xml_path', '');
+
+    if(!is_file($file_path)) {
+
+        return t("XML File is invalid");
+
+    } else {
+
+        $file_time = DateTime::createFromFormat('U', filemtime($file_path));
+        $file_time->setTimezone(new DateTimeZone("Europe/Paris"));
+
+        $file_description[] = t("File exists. Last update : @date at @time.", array('@date' => $file_time->format('d/m/Y'), '@time' => $file_time->format('H:i:s')));
+
+        $xml = simplexml_load_file($file_path, null, LIBXML_NOCDATA);
+
+        if(!empty($xml)) {
+
+            $field_name = variable_get('prestataires_ctoutvert_field', '');
+
+            $field_infos = content_fields($field_name);
+            $field_database_infos = content_database_info($field_infos);
+            $field_table = $field_database_infos['table'];
+            $field_column = $field_database_infos['columns']['value']['column'];
+
+            $results = prestataires_ctoutvert_parse_xml($xml, $field_table, $field_column);
+
+        } else {
+
+            $file_description[] = t("No xml data in file.");
+        }
+    }
+
+    return theme('prestataires_ctoutvert_xml_overview', $file_description, $results);
+}
+
+function _ctoutvert_xml2array(simpleXmlElement $xml)
+{
+    $arr = array();
+
+    foreach ($xml->children() as $r) {
+
+        if(count($r->children()) == 0) {
+            $arr[$r->getName()] = strval($r);
+        } else {
+            $arr[$r->getName()][] = _ctoutvert_xml2array($r);
+        }
+    }
+
+    return $arr;
+}
+
+function prestataires_ctoutvert_theme() {
+    return array(
+        'prestataires_ctoutvert_xml_overview' => array(
+            'arguments' => array(
+                'file_description' => array(),
+                'results' => array(),
+            ),
+        ),
+    );
+}
+
+function theme_prestataires_ctoutvert_xml_overview($file_description, $results) {
+    $output = "";
+
+    $output .= "<div>" . implode("</div><div>", $file_description) . "</div>";
+
+    foreach($results as $nid => $periods) {
+
+        $rows = array();
+
+        foreach($periods as $period) {
+            $rows[] = array(
+                DateTime::createFromFormat('Y-m-d', $period['start'])->format('d/m/Y'),
+                DateTime::createFromFormat('Y-m-d', $period['end'])->format('d/m/Y'),
+                $period['type'],
+            );
+        }
+
+        $output .= theme('fieldset', array(
+            '#title' => db_result(db_query("SELECT title FROM {node} WHERE nid=%d", $nid)) . " (" . $nid . ")",
+            '#children' => theme('table', array(t("Start"), t("End"), t("Type")), $rows),
+            '#collapsible' => true,
+            '#collapsed' => true,
+        ));
+
+    }
+
+    return $output;
+}

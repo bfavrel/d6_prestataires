@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function prestataires_kiosque_install() {
+    db_query("INSERT INTO {menu_custom} SET menu_name='menu-kiosque', title='Kiosque', description='Menu affiché en page d\'accueil du kiosque.'");
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function prestataires_kiosque_uninstall() {
+    db_query("DELETE FROM {menu_custom} WHERE menu_name = 'menu-kiosque'");
+}

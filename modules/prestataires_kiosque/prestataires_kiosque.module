@@ -1,0 +1,129 @@
+<?php
+
+// TODO : altérer le form de création manuel du menu pour ajouter l'indication "les chemins doivent commencer par 'kiosque/'"
+
+/**
+ * Implementation of hook_menu().
+ * Call all modules and get their menu items
+ * 
+ * @return An array of menu items.
+ */
+function prestataires_kiosque_menu() {
+    $items = array();
+
+    $items['kiosque'] = array(
+        'title' => 'Kiosque',
+        'page callback' => 'prestataires_kiosque_page',
+        'page arguments' => array(null),
+        'access arguments' => array('access kiosque'),
+        'menu_name' => 'menu-kiosque', // bien que ce soit un MENU_CALLBACK il FAUT le placer dans ce menu
+        'type' => MENU_CALLBACK,        
+    );
+   
+    $items = array_merge($items, module_invoke_all('kiosque', 'menu'));
+    
+    return $items;
+}
+
+/**
+ * Implementation of hook_prestataires
+ */
+function prestataires_kiosque_prestataires($op, $account = null) {
+
+    switch($op) {
+        case 'settings':
+
+            global $user;
+
+            $form = array();
+            
+            $theme_options = array();
+            $theme_list = list_themes();
+
+            foreach ($theme_list as $name => $params) {
+                if($params->status == 1) {
+                    $theme_options[$name] = $name;
+                }
+            }
+
+            $form['prestataires_kiosque'] = array(
+                '#type' => 'fieldset',
+                '#title' => t("Prestataires Kiosque"),
+                '#weight' => -10,
+                '#collapsible' => true,
+                '#collapsed' => true,
+            );
+            
+            $form['prestataires_kiosque']['prestataires_kiosque_theme'] = array(
+                '#type' => 'select',
+                '#title' => t("Theme"),
+                '#options' => $theme_options,
+                '#default_value' => variable_get('prestataires_kiosque_theme', null),
+            );
+            
+            return $form;
+            break;
+    }
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * @return array An array of valid permissions for the prestataires_kiosque module
+ */
+function prestataires_kiosque_perm() {
+    return array('access kiosque');
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function prestataires_kiosque_theme() {
+    $path = drupal_get_path('module', 'prestataires_kiosque') . '/theme';
+
+    return array(
+        'prestataires_kiosque_home' => array(
+            'arguments' => array(),
+            'path' => $path,
+            'template' => 'prestataires_kiosque_home',
+        ),
+    );
+}
+
+/**
+ * Return kiosque content from given module Or kiosque homepage
+ * 
+ * @param string $module_name
+ * @return string 
+ */
+function prestataires_kiosque_page($module_name) {
+
+    // Les pages du kiosque ne doivent évidement pas être mises en cache.    
+    global $conf;
+    $conf['cache'] = false;
+    
+    if(func_num_args() > 1) {
+        $arguments = func_get_args();
+        array_shift($arguments);
+    }
+    
+    $output = "";
+    global $user;
+
+    $user->theme = variable_get('prestataires_kiosque_theme', null);
+    init_theme();
+    
+    if($module_name != null) {
+        $output = module_invoke($module_name, 'kiosque', 'content', $arguments);
+    } else {
+        if($arguments[0] == null) {
+            $output = theme('prestataires_kiosque_home');
+        } else {
+            // TODO : traiter ces arguments, pour afficher le bon type d'objet (node_load())
+            $output = "Custom page";
+        }
+    }
+    
+    return $output;
+}
+

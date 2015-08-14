@@ -1,0 +1,7 @@
+; $Id$
+core          = "6.x"
+name          = "Prestataires dispos Ctouvert"
+description   = "Populates pdispos tables during cron with infos provided by a Ctoutvert XML file."
+package       = Saison d'Or
+
+dependencies[] = prestataires_dispos

@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function prestataires_dispos_schema() {
+    $schema = array();
+
+    $schema['prestataires_dispos_nodes'] = array(
+        'description' => 'Relations between nodes and user for dispos',
+        'fields' => array(
+            'nid' => array(
+                'description' => 'node id',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'uid' => array(
+                'description' => 'user id',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'last_update' => array(
+                'description' => 'last update timestamp',
+                'type' => 'datetime',
+                'not null' => TRUE,
+            ),
+        ),
+        'primary key' => array('nid'),
+    );
+    
+    // TODO : attention ! le type 'DATE' n'est pas standard
+    $schema['prestataires_dispos_dispos'] = array(
+        'description' => 'Dispos entries',
+        'fields' => array(
+            'id' => array(
+            'type' => 'serial',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'description' => 'Primary Key',
+			),
+            'nid' => array(
+                'description' => 'node id',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'start_date' => array(
+                'description' => 'range start date',
+                'type' => 'varchar',
+                'mysql_type' => 'date',
+            ),
+            'end_date' => array(
+                'description' => 'range end date',
+                'type' => 'varchar',
+                'mysql_type' => 'date',
+            ),
+            'type_dispo' => array(
+                'description' => 'type of availability',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'data' => array(
+                'description' => 'various informations provided for the range',
+                'type' => 'text',
+            ),
+        ),
+        'primary key' => array('id'),
+    );
+    
+    return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function prestataires_dispos_install() {
+
+    // on crée le nouveau rôle
+    require_once(drupal_get_path('module', 'user') . '/user.admin.inc');
+
+    $form_id = 'user_admin_new_role';
+
+    $form_values = array();
+    $form_values['name'] = 'prestataire dispos';
+    $form_values['op'] = t('Add role');
+
+    $form_state = array();
+    $form_state['values'] = $form_values;
+
+    // "$q" : astuce dont je n'ai pas compris la finalité
+    $q = $_GET['q'];
+    $_GET['q'] = '';
+    drupal_execute($form_id, $form_state);
+    $_GET['q'] = $q;
+    
+    // on récupère le RID de ce nouveau rôle    
+    $roles = user_roles();
+    $rid = array_search('prestataire dispos', $roles);
+    
+    // on paramètre le droit 'edit dispos'
+    $permissions = array('edit dispos');
+        
+    // on duplique les droits du rôle 'anonymous' (RID = 1)
+    $req = "SELECT perm FROM {permission} WHERE rid=%d";
+    $anonymous_permissions = db_result(db_query($req, 1));    
+    
+    // on écrit les droits en bdd
+    $perm = implode(', ', $permissions) . ", " . $anonymous_permissions;
+    $req = "INSERT INTO {permission} SET rid=%d, perm='%s'";
+    db_query($req, $rid, $perm);
+    
+    drupal_install_schema('prestataires_dispos');
+    
+    drupal_set_message("In order to use dispos export, you have to download <strong>PHPExcel</strong> at : <a href='http://phpexcel.codeplex.com/' target='_blank'>http://phpexcel.codeplex.com/</a><br />The PHPExcel librarie must reside in 'site/all/libraries'.", 'warning');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function prestataires_dispos_uninstall() {
+    // TODO : uninstallation
+    
+    drupal_uninstall_schema('prestataires_dispos');
+}

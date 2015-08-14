@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function prestataires_editeurs_install() {
+
+    // on crée le nouveau rôle
+    require_once(drupal_get_path('module', 'user') . '/user.admin.inc');
+
+    $form_id = 'user_admin_new_role';
+
+    $form_values = array();
+    $form_values['name'] = 'prestataire éditeur';
+    $form_values['op'] = t('Add role');
+
+    $form_state = array();
+    $form_state['values'] = $form_values;
+
+    // "$q" : astuce dont je n'ai pas compris la finalité
+    $q = $_GET['q'];
+    $_GET['q'] = '';
+    drupal_execute($form_id, $form_state);
+    $_GET['q'] = $q;
+
+    // on récupère le RID de ce nouveau rôle    
+    $roles = user_roles();
+    $rid = array_search('prestataire éditeur', $roles);
+
+    // on récupère tous les types de contenus
+    $content_types = node_get_types('types');
+    
+    $permissions = array();
+    
+    // on paramètre les droits 'edit own <content type> content'
+    foreach($content_types as $content_type) {
+        $permissions[] = 'edit own ' . $content_type->type . ' content';
+    }
+    
+    // on duplique les droits du rôle 'anonymous' (RID = 1)
+    $req = "SELECT perm FROM {permission} WHERE rid=%d";
+    $anonymous_permissions = db_result(db_query($req, 1));    
+    
+    // on écrit les droits en bdd
+    $perm = implode(', ', $permissions) . ", " . $anonymous_permissions;
+    $req = "INSERT INTO {permission} SET rid=%d, perm='%s'";
+    db_query($req, $rid, $perm);
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function prestataires_editeurs_uninstall() {
+    // TODO : uninstallation
+}

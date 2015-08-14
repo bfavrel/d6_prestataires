@@ -1,0 +1,200 @@
+/* ----- USER EDIT ----- */
+
+.to_delete {
+    text-decoration: line-through;
+}
+
+/* ----- PAGE ----- */
+
+a#dispos_fiche_link {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #000000;
+}
+
+a#dispos_fiche_link:hover,
+a#dispos_fiche_link:active {
+    text-decoration: underline;
+}
+
+/* ----- CONTROLS ----- */
+
+#edit_dispo_controls {
+    width: 354px;
+    padding: 10px;
+    border: 1px solid #666666;
+}
+
+#edit_dispo_controls .form-text {
+    width: 330px;
+}
+
+#edit_dispo_controls .valid_dispo {
+    width: 110px;
+    font-size: 8pt;
+}
+
+#edit_dispo_controls #edit-cancel {
+    display: block;
+    margin-top: 10px;
+}
+
+/* ----- CALENDAR (edit) ----- */
+
+#edit_calendar {
+    float: left;
+    clear: left;
+    width: 384px;
+    margin-top: 20px;
+}
+
+#edit_calendar .month_container {
+    float: left;
+    width: 120px;
+    min-height: 150px;
+    margin-right: 8px;
+    margin-bottom: 0px;
+}
+
+#edit_calendar .month {
+    width: 120px;
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+}
+
+#edit_calendar th {    
+    font-size: 9pt;
+    line-height: 20px;
+    background-color: #667923;
+    color: #ffffff;
+    text-align: center;
+}
+
+#edit_calendar td {
+    border: 1px solid #ddd;
+    text-align: right;
+    cursor: pointer;
+    font-size: 8pt;
+    color: #ffffff;
+    background-color: #bbbbbb;
+}
+
+#edit_calendar td.selected_range_item {
+    font-weight: bold;
+    color: #ff0000;
+}
+
+#edit_calendar tr.days td {
+    border: none;
+    color: #666666;
+    background-color: #cec3ae;
+}
+
+/* ----- INFOS ----- */
+
+#edit_dispos_data_display {
+    float: right;
+    width: 221px;
+    min-height: 160px;
+}
+
+#edit_dispos_data_display h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14pt;
+}
+
+#edit_dispos_data_display #dispos_data_display {
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+#edit_dispos_data_display #dispos_data_display span {
+    color: #f08712;
+}
+
+#edit_dispos_data_display #dispos_data_display .dispo_data_date {
+    margin-bottom: 8px;
+    color: #000000;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+/* ----- LEGEND ----- */
+
+#edit_dispos_calendar_legend {
+    float: left;
+    width: 221px;
+}
+
+#edit_dispos_calendar_legend .calendar_legend_item {
+    float: left;
+    width: 215px;
+    padding-left: 6px;
+    margin-bottom: 6px;
+    line-height: 20px;
+    font-size: 7pt;
+    font-weight: bold;
+}
+
+#edit_dispos_calendar_legend .calendar_legend_item div {
+    float: left;
+    width: 28px;
+    height: 18px;
+    margin-right: 5px;
+    border: 1px solid #999999;
+}
+
+#edit_dispos_calendar_legend .calendar_legend_item span {
+    float: left;
+}
+
+/* ----- COLORS ----- */
+
+#edit_calendar td.blank {
+    background-color: #e8e3dc;
+}
+
+#edit_calendar .dispo_type_0,
+#edit_dispos_calendar_legend .dispo_type_0 {
+    background-color: #c3c2c3;
+    color: #000000;
+}
+
+#edit_calendar .dispo_type_1,
+#edit_dispos_calendar_legend .dispo_type_1 {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+#edit_calendar .dispo_type_2,
+#edit_dispos_calendar_legend .dispo_type_2 {
+    background-color: #cd4536;
+    color: #ffffff;
+}
+
+#edit_calendar .dispo_type_3,
+#edit_dispos_calendar_legend .dispo_type_3 {
+    background-color: #dd9d1e;
+    color: #ffffff;
+}
+
+#edit_calendar .dispo_type_4,
+#edit_dispos_calendar_legend .dispo_type_4 {
+    background-color: #9ab24b;
+    color: #ffffff;
+}
+
+#edit_calendar .dispo_type_5,
+#edit_dispos_calendar_legend .dispo_type_5 {
+    background-color: #ffff00;
+    color: #666666;
+}
+
+#edit_calendar .dispo_type_6,
+#edit_dispos_calendar_legend .dispo_type_6 {
+    background-color: #00ffff;
+    color: #666666;
+}
+

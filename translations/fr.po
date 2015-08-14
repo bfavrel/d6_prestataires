@@ -1,0 +1,403 @@
+# $Id$
+#
+# French translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  prestataires_dispos/prestataires_dispos.admin.inc: n/a
+#  prestataires_dispos/theme/theme.inc: n/a
+#  prestataires_dispos/prestataires_dispos.edit.inc: n/a
+#  prestataires_dispos/prestataires_dispos.module: n/a
+#  prestataires_editeurs/prestataires_editeurs.module: n/a
+#  prestataires_dispos/prestataires_dispos.install: n/a
+#  prestataires_editeurs/prestataires_editeurs.install: n/a
+#  prestataires_dispos/prestataires_dispos.info: n/a
+#  prestataires_editeurs/prestataires_editeurs.info: n/a
+#  prestataires_kiosque/prestataires_kiosque.info: n/a
+#  prestataires_dispos/classes/prestatairesCalendar.class.php: n/a
+#  prestataires_dispos/scripts/prestataires_dispos.js: n/a
+#  prestataires_dispos/views/prestataires_dispos.views.inc: n/a
+#  prestataires_dispos/views/prestataires_dispos.views_default.inc: n/a
+#  prestataires_kiosque/prestataires_kiosque.module: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2013-04-12 17:34+0200\n"
+"PO-Revision-Date: 2013-05-30 11:25+0100\n"
+"Last-Translator: David PIVERON\n"
+"Language-Team: French <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:4
+msgid "Availabilities export"
+msgstr "Export des disponibilités"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:13
+msgid "Content type"
+msgstr "Type de contenu"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:19
+msgid "From date"
+msgstr "Date de début"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:26
+msgid "To date"
+msgstr "Date de fin"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:32
+msgid "Export"
+msgstr "Exporter"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:41
+msgid "You must provide a start date"
+msgstr "Vous devez fournir une date de début"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:45
+msgid "You must provide an end date"
+msgstr "Vous devez fournir une date de fin"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:56
+msgid "Interval between the two dates can't exceed @days days"
+msgstr "La période ne doit pas excéder @days jours"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:184
+#: prestataires_dispos/theme/theme.inc:29
+msgid "at"
+msgstr "à"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:189
+msgid "Name"
+msgstr "Nom"
+
+#: prestataires_dispos/prestataires_dispos.admin.inc:192
+#: prestataires_dispos/theme/theme.inc:29
+msgid "Last update"
+msgstr "Dernière mise à jour"
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:22
+msgid "Pick a start date"
+msgstr "Cliquez sur la date de début"
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:33
+msgid "Optionaly, pick an end date."
+msgstr "Cliquez sur la date de fin (facultatif)"
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:42
+msgid "Informations"
+msgstr "Informations"
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:43
+msgid "Enter a number or a little text.<br />Fields filled with nothing or '0' will not appear."
+msgstr "Entrez un nombre ou un texte court.<br />Les champs non rempli ou possédant la valeur '0' ne seront pas affichés."
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:61
+msgid "Select an availability type below."
+msgstr "Sélectionnez un type de disponibilité ci-dessous."
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:66
+#: prestataires_dispos/theme/theme.inc:61
+msgid "Not specified"
+msgstr "Non renseigné"
+
+#: prestataires_dispos/prestataires_dispos.edit.inc:96
+msgid "Cancel"
+msgstr "Annuler"
+
+#: prestataires_dispos/prestataires_dispos.module:133
+msgid "Prestataires Dispos"
+msgstr "Prestataires Dispos"
+
+#: prestataires_dispos/prestataires_dispos.module:141
+msgid "Prestataires can set dispos for this type(s) of content"
+msgstr "Types de contenus pouvant afficher des dispos"
+
+#: prestataires_dispos/prestataires_dispos.module:148
+msgid "Types of dispos"
+msgstr "Types de dispos"
+
+#: prestataires_dispos/prestataires_dispos.module:149
+msgid "Enter one type per line.<br />First type will receive 'dispo_type_1' class, second one 'dispo_type_2' class, etc.<br />Optionaly, color for export can be added : <strong><em>type</em>|RRGGBB</strong>"
+msgstr "Un type par ligne.<br />Le premier type recevra la classe 'dispos_type_1', etc.<br />Il est possible de paramétrer une couleur de fond correspondante pour les cellules des exports xls : <strong><em>type</em>|RRGGBB</strong>"
+
+#: prestataires_dispos/prestataires_dispos.module:156
+msgid "Types for Sirtaqui dispos"
+msgstr "Type pour les dispos Sirtaqui"
+
+#: prestataires_dispos/prestataires_dispos.module:157
+msgid "Enter one sirtaqui type per line (NR, RQ, OK...).<br />First type will receive 'dispo_type_0' class (unspecified value), second one 'dispo_type_1' class, etc."
+msgstr "Un type par ligne (NR, RQ, OK...).<br />Le premier type recevra la classe 'dispo_type_0' (valeur non renseignée), etc."
+
+#: prestataires_dispos/prestataires_dispos.module:165
+msgid "Data fields available for dispos"
+msgstr "Champs d'information des dispos"
+
+#: prestataires_dispos/prestataires_dispos.module:166
+msgid "Enter one field per line."
+msgstr "Entrez un seul champ par ligne"
+
+#: prestataires_dispos/prestataires_dispos.module:174
+msgid "Kiosque module will only display this type(s) of content"
+msgstr "Le module Kiosque ne doit afficher que ces types de contenu"
+
+#: prestataires_dispos/prestataires_dispos.module:183
+msgid "Fields to export with dispos"
+msgstr "Champs à exporter avec les dispos (champs de l'objet <em>node</em>)"
+
+#: prestataires_dispos/prestataires_dispos.module:184
+msgid "Format : <strong>field name (non-f)|export label[|width;alignementH;alignementV]</strong><br />One field per line.<br />Only fields with '_value' (no '_fid', no '_value2', etc.). CCK multiples allowed."
+msgstr "Format : <strong>nom CCK (non-f)|nom en clair[|largeur;alignementH;alignementV]</strong><br />Un champ par ligne.<br />Seulement les champs de la catégorie '_value' (no '_fid', no '_value2', etc.). Les champs CCK multiples sont autorisés."
+
+#: prestataires_dispos/prestataires_dispos.module:192
+msgid "Limit export up to"
+msgstr "Limiter l'export au maximum à"
+
+#: prestataires_dispos/prestataires_dispos.module:193
+msgid "days"
+msgstr "jours"
+
+#: prestataires_dispos/prestataires_dispos.module:201
+msgid "Additional memory to allocate to export script"
+msgstr "Mémoire additionnelle à allouer au script d'export"
+
+#: prestataires_dispos/prestataires_dispos.module:202
+msgid "Format php.ini (ie: '32M').<br />Additional memory will be allocated only in the case of exported period exceed number of days set above.<br /><strong>Warning : by default, Suhosin extension prevents overtaking memory allocation !</strong>"
+msgstr "Format php.ini (ie: '32M').<br />La mémoire additionnelle ne sera alloué que dans le cas où la période exportée excèderait le nombre de jours paramétrés ci-dessus.<br /><strong>Attention : par défaut, l'extension Suhosin interdit les allocations de mémoire dépassant les paramètres initiaux !</strong>"
+
+#: prestataires_dispos/prestataires_dispos.module:228
+msgid "Prestataires : Dispos contents parameters"
+msgstr "Prestataires : Paramètres des contenus pour les dispos"
+
+#: prestataires_dispos/prestataires_dispos.module:249
+#: prestataires_editeurs/prestataires_editeurs.module:132
+msgid "No content assigned yet"
+msgstr "Aucun contenu assigné pour le moment"
+
+#: prestataires_dispos/prestataires_dispos.module:254
+#: prestataires_editeurs/prestataires_editeurs.module:137
+msgid "Assign content"
+msgstr "Assigner un contenu"
+
+#: prestataires_dispos/prestataires_dispos.module:336
+#: prestataires_editeurs/prestataires_editeurs.module:193
+msgid "delete"
+msgstr "supprimer"
+
+#: prestataires_dispos/prestataires_dispos.module:520;73
+#: prestataires_dispos/theme/theme.inc:42;95;137;138;144
+msgid "Availabilities"
+msgstr "Disponibilités"
+
+#: prestataires_dispos/prestataires_dispos.module:777
+msgid "Types of availabilities to search for"
+msgstr "Types de disponibilités à rechercher"
+
+#: prestataires_dispos/prestataires_dispos.module:784
+msgid "Results accuracy"
+msgstr "Précision des résultats"
+
+#: prestataires_dispos/prestataires_dispos.module:786
+msgid "Results have to contain only days matching selected availability types"
+msgstr "Les résultats ne doivent contenir que des jours correspondant à un des types de disponibilités sélectionnés"
+
+#: prestataires_dispos/prestataires_dispos.module:787
+msgid "Results have to contain at least one day matching authorized availability types"
+msgstr "Les résultats doivent contenir au moins un jour correspondant à un des types de disponibilités sélectionnés"
+
+#: prestataires_dispos/prestataires_dispos.module:579
+msgid "edit dispos"
+msgstr "éditer les dispos"
+
+#: prestataires_dispos/prestataires_dispos.module:45
+msgid "Dispos"
+msgstr "Dispos"
+
+#: prestataires_dispos/prestataires_dispos.install:88
+#: prestataires_editeurs/prestataires_editeurs.install:15
+msgid "Add role"
+msgstr "Ajouter un rôle"
+
+#: prestataires_dispos/prestataires_dispos.info:0
+msgid "Prestataires dispos"
+msgstr "Prestataires dispos"
+
+#: prestataires_dispos/prestataires_dispos.info:0
+msgid "Provides functionalities for customers to add availabilities informations to contents"
+msgstr "Fourni des fonctionalités permettant d'assigner et de paramétrer des disponibilités dans les contenus"
+
+#: prestataires_dispos/prestataires_dispos.info:0
+#: prestataires_editeurs/prestataires_editeurs.info:0
+#: prestataires_kiosque/prestataires_kiosque.info:0
+msgid "Saison d'Or"
+msgstr "Saison d'Or"
+
+#: prestataires_dispos/classes/prestatairesCalendar.class.php:133
+msgid "No informations."
+msgstr "Aucune information."
+
+#: prestataires_dispos/scripts/prestataires_dispos.js:0
+msgid "Start date : "
+msgstr "Date de début : "
+
+#: prestataires_dispos/scripts/prestataires_dispos.js:0
+msgid "End date : "
+msgstr "Date de fin : "
+
+#: prestataires_dispos/scripts/prestataires_dispos.js:0
+#: prestataires_dispos/theme/theme.inc:17;42
+msgid "Roll over a date to see availabilities details."
+msgstr "Survolez une date pour visualiser les informations."
+
+#: prestataires_dispos/theme/theme.inc:49
+msgid "Legend"
+msgstr "Légende"
+
+#: prestataires_dispos/theme/theme.inc:137;138
+msgid "from date"
+msgstr "du"
+
+#: prestataires_dispos/theme/theme.inc:137;138
+msgid "to date"
+msgstr "au"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:5
+msgid "Prestataires dispos table"
+msgstr ""
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:16
+msgid "nid"
+msgstr "nid"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:17
+msgid "node id"
+msgstr "node id"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:22
+msgid "nid join"
+msgstr "nid join"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:28
+msgid "Start date"
+msgstr "Date de début"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:29
+msgid "Dispo range start date"
+msgstr ""
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:43
+msgid "End date"
+msgstr "Date de fin"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:44
+msgid "Dispo range end date"
+msgstr ""
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:58;59
+msgid "Dispo type"
+msgstr "Type de dispo"
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:77
+msgid "Data"
+msgstr ""
+
+#: prestataires_dispos/views/prestataires_dispos.views.inc:78
+msgid "Dispos data"
+msgstr ""
+
+#: prestataires_dispos/views/prestataires_dispos.views_default.inc:10
+msgid "Displays daily availabilities"
+msgstr ""
+
+#: prestataires_editeurs/prestataires_editeurs.module:73
+msgid "Prestataires Editeurs"
+msgstr "Prestataires Editeurs"
+
+#: prestataires_editeurs/prestataires_editeurs.module:81
+msgid "Prestataires can own this type(s) of content"
+msgstr "Les prestataires peuvent éditer ces types de contenu"
+
+#: prestataires_editeurs/prestataires_editeurs.module:87
+msgid "Default UID for reseted contents"
+msgstr "UID par défaut pour la réinitialisation du propriétaires d'un contenu"
+
+#: prestataires_editeurs/prestataires_editeurs.module:111
+msgid "Prestataires : Content edition parameters"
+msgstr "Prestataires : Paramètres d'édition des contenus"
+
+#: prestataires_editeurs/prestataires_editeurs.module:316
+msgid "Edit content"
+msgstr "Editer les contenus"
+
+#: prestataires_editeurs/prestataires_editeurs.info:0
+msgid "Prestataires éditeurs"
+msgstr "Prestataires éditeurs"
+
+#: prestataires_editeurs/prestataires_editeurs.info:0
+msgid "Provides functionalities for customers to edit their owned contents"
+msgstr "Fourni aux prestataires la possibilité d'éditer des contenus qui leur sont assignés"
+
+#: prestataires_kiosque/prestataires_kiosque.module:51
+msgid "Prestataires Kiosque"
+msgstr ""
+
+#: prestataires_kiosque/prestataires_kiosque.module:59
+msgid "Theme"
+msgstr "Thème"
+
+#: prestataires_kiosque/prestataires_kiosque.module:75
+msgid "access kiosque"
+msgstr "accéder au kiosque"
+
+#: prestataires_kiosque/prestataires_kiosque.module:15
+msgid "Kiosque"
+msgstr ""
+
+#: prestataires_kiosque/prestataires_kiosque.info:0
+msgid "Prestataires kiosque"
+msgstr ""
+
+#: prestataires_kiosque/prestataires_kiosque.info:0
+msgid "Provides public screens displays functionalities to Prestataires module suite"
+msgstr ""
+
+msgid "January"
+msgstr "Janvier"
+
+msgid "February"
+msgstr "Février"
+
+msgid "March"
+msgstr "Mars"
+
+msgid "April"
+msgstr "Avril"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "June"
+msgstr "Juin"
+
+msgid "July"
+msgstr "Juillet"
+
+msgid "August"
+msgstr "Août"
+
+msgid "September"
+msgstr "Septembre"
+
+msgid "October"
+msgstr "Octobre"
+
+msgid "November"
+msgstr "Novembre"
+
+msgid "December"
+msgstr "Décembre"
+
+msgid "Only published nodes"
+msgstr "Seulement les noeuds publiés"
+

@@ -1,0 +1,7 @@
+; $Id$
+core          = "6.x"
+name          = "Prestataires"
+description   = "Provides basic common functionalities for customers"
+package       = Saison d'Or
+
+dependencies[] = roleassign
